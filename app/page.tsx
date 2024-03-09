@@ -1,25 +1,35 @@
 import { cn } from '@/lib/utils';
 import { TypographyH1 } from './components/basic/h1';
 import { theme_styles } from './style-constants';
+import { Card } from '@/components/ui/card';
 
 export default function Home() {
   return (
     <div className={cn(`
       container
-      px-4 sm:px-0
+      max-w-5xl
+      px-2 md:px-4
     `)}>
-      <TypographyH1 className='mt-6 mb-8' centered>
+      <TypographyH1
+        className={cn(`
+          mt-6
+          mb-4 md:mb-6
+        `)}
+        centered
+        underlined
+      >
         Chatbot Form Filler
       </TypographyH1>
-      <div className={cn(`
-        text-center
-        border rounded
-        ${theme_styles.default_text_color}
-        ${theme_styles.card_bg_color}
+      <Card className={`
+        rounded
         px-5 py-3
-      `)}>
+        text-center
+        ${theme_styles.default_text_color}
+        ${theme_styles.default_text_size}
+        ${theme_styles.card_bg_color}
+      `}>
         This is a demo showcasing the use of Vercel AI SDK to fill out a form using a chatbot.
-      </div>
+      </Card>
     </div>
   );
 }

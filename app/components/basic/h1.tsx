@@ -6,7 +6,7 @@ import React, { ReactNode } from 'react';
 
 const TypographyH1Variants = cva(
   `
-    text-lg
+    text-2xl
     md:text-3xl
     font-semibold
     tracking-tight
@@ -19,7 +19,7 @@ const TypographyH1Variants = cva(
         true: 'text-center',
       },
       underlined: {
-        true: 'border-b pb-2'
+        true: ''
       }
     },
     defaultVariants: {},
@@ -33,9 +33,12 @@ type TypographyH1Props = {
 
 
 export function TypographyH1({ className, children, ...rest }: TypographyH1Props) {
+  
   return (
     <h1 className={cn(TypographyH1Variants({ ...rest, className}))}>
-      {children}
+      <span className={cn(TypographyH1Variants({underlined: rest.underlined}))}>
+        {children}
+      </span>
     </h1>
   );
 }

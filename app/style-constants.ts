@@ -6,12 +6,15 @@ const theme_styles = /*ui*/ {
     transition-colors duration-700
   `,
   card_bg_color: `
-    bg-white dark:bg-zinc-400
+    bg-white dark:bg-slate-950
     transition-colors duration-500
   `,
   default_text_color: `
     text-black dark:text-white
     transition-colors duration-[450ms]
+  `,
+  default_text_size: `
+    text-sm sm:text-base
   `,
 }
 
