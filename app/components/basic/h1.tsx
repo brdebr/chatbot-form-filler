@@ -1,4 +1,5 @@
 'use client';
+import { theme_styles } from '@/app/style-constants';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from "class-variance-authority"
 import React, { ReactNode } from 'react';
@@ -9,6 +10,7 @@ const TypographyH1Variants = cva(
     md:text-3xl
     font-semibold
     tracking-tight
+    ${theme_styles.default_text_color}
   `,
   {
     variants: {
@@ -32,9 +34,7 @@ type TypographyH1Props = {
 
 export function TypographyH1({ className, children, ...rest }: TypographyH1Props) {
   return (
-    <h1 className={
-      cn(TypographyH1Variants({ ...rest, className}))}
-    >
+    <h1 className={cn(TypographyH1Variants({ ...rest, className}))}>
       {children}
     </h1>
   );

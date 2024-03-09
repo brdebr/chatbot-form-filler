@@ -5,6 +5,7 @@ import { theme_styles } from './style-constants';
 import { AppProviders } from './providers/app-provider';
 import ThemeSwitch from './components/theme-switch';
 import { metadataObj } from './constants';
+import { cn } from '@/lib/utils';
 
 const font = Montserrat({ subsets: ['latin'] });
 
@@ -20,12 +21,12 @@ export default function RootLayout({
       <body className={font.className}>
         <AppProviders>
           <ThemeSwitch />
-          <main className={`
+          <main className={cn(`
               flex flex-col
               items-center
               min-h-[100dvh]
               ${theme_styles.bg_default}
-            `}
+            `)}
           >
             {children}
           </main>

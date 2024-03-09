@@ -1,9 +1,9 @@
 'use client';
 import { useDarkMode } from "@/lib/useDarkMode";
-import { theme_styles } from "../style-constants";
-import { useWasMounted } from "@/lib/utils";
 import { Button } from "@/components/ui/button"
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { useWasMounted } from "../hooks/utils";
+import { cn } from "@/lib/utils";
 
 const ThemeSwitch = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
@@ -23,12 +23,12 @@ const ThemeSwitch = () => {
     <Button
       onClick={toggleDarkMode}
       variant="outline" size="icon"
-      className={`
+      className={cn(`
         fixed top-4 right-4
         size-10
         p-2
         ${wasMounted ? 'opacity-100' : 'opacity-0'}
-      `}
+      `)}
       aria-label="Toggle theme"
     >
       {content}
