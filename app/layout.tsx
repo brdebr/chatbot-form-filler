@@ -23,9 +23,7 @@ export default function RootLayout({
           <main className={`
             flex flex-col
             items-center
-            justify-between
             min-h-[100dvh]
-            ${theme_styles.default_text_color}
             ${theme_styles.bg_default}
             `}
           >

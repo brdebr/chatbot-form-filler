@@ -5,9 +5,13 @@ const theme_styles = /*ui*/ {
   bg-zinc-50 dark:bg-slate-900
     transition-colors duration-700
   `,
+  card_bg_color: `
+    bg-white dark:bg-zinc-400
+    transition-colors duration-500
+  `,
   default_text_color: `
     text-black dark:text-white
-    transition-colors duration-1000
+    transition-colors duration-[450ms]
   `,
   header: `
     text-3xl
@@ -15,14 +19,19 @@ const theme_styles = /*ui*/ {
     text-center
   `,
   switch_theme_button_bg: `
-    transition duration-700
+    transition duration-300
     text-white dark:text-black
-    bg-slate-400 hover:bg-slate-300
-    dark:bg-zinc-300 dark:hover:bg-white
+
+    bg-stone-100 hover:bg-stone-300
+    dark:bg-zinc-400 dark:hover:bg-stone-300
     active:bg-slate-500 dark:active:bg-zinc-400
+
+    border
+    border-stone-300 dark:border-zinc-300
+
     ring-offset-1
-    focus:dark:ring-1 focus:dark:ring-sky-400
-    focus:ring-1 focus:ring-sky-800
+    focus:dark:ring-1 focus:dark:ring-stone-400
+    focus:ring-2 focus:ring-sky-800
   `,
 }
 
