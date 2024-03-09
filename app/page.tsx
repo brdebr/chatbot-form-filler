@@ -1,3 +1,4 @@
+import { TypographyH1 } from './components/basic/h1';
 import { theme_styles } from './style-constants';
 
 export default function Home() {
@@ -6,16 +7,9 @@ export default function Home() {
       container
       px-4 sm:px-0
     `}>
-      <h1
-        className={`
-          ${theme_styles.header}
-          ${theme_styles.default_text_color}
-          mt-6
-          mb-8
-        `}
-      >
+      <TypographyH1 className='mt-6 mb-8' centered>
         Chatbot Form Filler
-      </h1>
+      </TypographyH1>
       <div className={`
         text-center
         border rounded

@@ -21,10 +21,10 @@ export default function RootLayout({
         <AppProviders>
           <ThemeSwitch />
           <main className={`
-            flex flex-col
-            items-center
-            min-h-[100dvh]
-            ${theme_styles.bg_default}
+              flex flex-col
+              items-center
+              min-h-[100dvh]
+              ${theme_styles.bg_default}
             `}
           >
             {children}
