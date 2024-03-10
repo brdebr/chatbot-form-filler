@@ -40,8 +40,9 @@ export function ChatTriggerButton(props: {
         <div className={cn(`
           flex justify-between items-center
         `)}>
-          <TypographyH4 className="dark">
-            Chat with the bot
+          <TypographyH4 className="dark ml-1">
+            <span className="inline-block mr-3">🤖</span>
+            Chat with assistant
           </TypographyH4>
           <Button
             onClick={() => setIsChatOpen(false)}

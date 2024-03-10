@@ -6,7 +6,7 @@ import React, { ReactNode } from 'react';
 
 const TypographyH4Variants = cva(
   `
-    text-xl
+    text-lg
     md:text-lg
     tracking-tight
     ${theme_styles.default_text_color}
@@ -34,10 +34,10 @@ type TypographyH4Props = {
 export function TypographyH4({ className, children, ...rest }: TypographyH4Props) {
   
   return (
-    <h1 className={cn(TypographyH4Variants({ ...rest, className}))}>
+    <h4 className={cn(TypographyH4Variants({ ...rest, className}))}>
       <span className={cn(TypographyH4Variants({underlined: rest.underlined}))}>
         {children}
       </span>
-    </h1>
+    </h4>
   );
 }
