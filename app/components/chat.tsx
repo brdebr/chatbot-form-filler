@@ -11,7 +11,7 @@ export function ChatMessage({ message, side }: ChatMessageProps) {
     <div
       className={cn(`
           ${side === 'left' ? 'rounded-bl' : 'rounded-br'}
-          ${side === 'left' ? 'bg-blue-300' : 'bg-green-400'}
+          ${side === 'left' ? 'bg-blue-300 dark:bg-blue-900': 'bg-green-400 dark:bg-green-800'}
           w-3/4
           ${side === 'left' ? 'mr-auto' : 'ml-auto'}
           ${theme_styles.default_text_color}

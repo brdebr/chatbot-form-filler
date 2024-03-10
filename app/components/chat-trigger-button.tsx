@@ -1,13 +1,15 @@
 'use client';
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ChatBubbleIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { cn } from "@/lib/utils";
 import { useWasMounted } from "../hooks/utils";
 import { LoadingIcon } from "./utils/loading-icon";
 import { useState } from "react";
 import { TypographyH4 } from "./basic/h4";
-import { theme_styles } from "../style-constants";
 import { Chat } from "./chat";
+import { motion } from "framer-motion";
+
+const MotionChatBubble = motion(ChatBubbleIcon);
 
 export function ChatTriggerButton(props: {
   onClick?: () => void;
@@ -21,20 +23,22 @@ export function ChatTriggerButton(props: {
 
   if (isChatOpen) {
     return (
-      <div className={cn(`
-        rounded-md
-        fixed bottom-4 right-4
-        max-h-[80dvh] max-w-[80dvw]
-        w-[450px] h-[550px]
-        bg-violet-800
-        dark:bg-purple-900
-        text-white
-        p-2
-        flex flex-col
-      `)}>
+      <motion.div
+        layoutId="chat-container"
+        className={cn(`
+          rounded-md
+          fixed bottom-4 right-4
+          max-h-[80dvh] max-w-[80dvw]
+          w-[450px] h-[550px]
+          bg-violet-800
+          dark:bg-purple-900
+          text-white
+          p-2
+          flex flex-col
+        `)}
+      >
         <div className={cn(`
           flex justify-between items-center
-          pl-3
         `)}>
           <TypographyH4 className="dark">
             Chat with the bot
@@ -54,24 +58,52 @@ export function ChatTriggerButton(props: {
           </Button>
         </div>
         <Chat />
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <Button
+    <motion.button
       onClick={openChat}
-      variant='outline'
-      size='icon'
-      className={cn(`
-        fixed bottom-4 right-4
-        size-14
-        bg-violet-800 hover:bg-violet-600
-        dark:bg-purple-900 dark:hover:bg-purple-700
-        text-white hover:text-white
-        p-2
-      `)}>
-      {wasMounted ? <ChatBubbleIcon fontSize={23} /> : <LoadingIcon/> }
-    </Button>
+      layoutId="chat-container"
+      transition={{
+        delay: 0,
+      }}
+      className={
+        cn(
+          buttonVariants(
+            {
+              variant: 'outline',
+              size: 'icon',
+              className: cn(`
+                fixed bottom-4 right-4
+                size-14
+              bg-violet-800 hover:bg-violet-600
+              dark:bg-purple-900 dark:hover:bg-purple-700
+              text-white hover:text-white
+                p-2
+              `)
+            }
+          )
+        )
+      }
+      >
+      {wasMounted ?
+      <MotionChatBubble
+        className="max-w-[20px] max-h-[20px]"
+        initial={{
+          opacity: 0,
+          scale: 3,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+        }}
+        transition={{
+          delay: 0.25,
+        }}
+        fontSize={23}
+      /> : <LoadingIcon/> }
+    </motion.button>
   );
 }
