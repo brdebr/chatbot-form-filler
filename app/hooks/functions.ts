@@ -1,10 +1,7 @@
 
-const isProd = process.env.NODE_ENV === 'production';
-
-export function isProduction() {
-  return isProd;
-}
+export const isProd = process.env.NODE_ENV === 'production';
+export const APP_VERSION_HASH = process.env.COMMIT_DEPLOYED_HASH || 'dev';
 
 export function getFaviconByEnv() {
-  return isProduction() ? '🤖' : '🚧';
+  return isProd ? '🤖' : '🚧';
 }
