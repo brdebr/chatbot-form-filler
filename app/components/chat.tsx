@@ -13,7 +13,8 @@ export function ChatMessage({ message, side }: ChatMessageProps) {
     <div
       className={cn(`
           ${side === 'left' ? 'rounded-bl' : 'rounded-br'}
-          ${side === 'left' ? 'bg-blue-200 dark:bg-blue-900': 'bg-green-300 dark:bg-green-800'}
+          ${side === 'left' ? 'bg-blue-400 bg-opacity-40 dark:bg-blue-900 dark:bg-opacity-50': 'bg-teal-400 bg-opacity-50 dark:bg-teal-800 dark:bg-opacity-70'}
+          transition-colors
           w-3/4
           ${side === 'left' ? 'mr-auto' : 'ml-auto'}
           ${theme_styles.default_text_color}

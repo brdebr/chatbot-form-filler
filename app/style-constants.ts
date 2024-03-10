@@ -14,7 +14,7 @@ const theme_styles = /*ui*/ {
     transition-colors duration-[450ms]
   ` as const,
   default_text_size: `
-    text-sm sm:text-base
+    text-sm lg:text-base
   ` as const,
 }
 
