@@ -7,6 +7,7 @@ import { LoadingIcon } from "./utils/loading-icon";
 import { useState } from "react";
 import { TypographyH4 } from "./basic/h4";
 import { theme_styles } from "../style-constants";
+import { Chat } from "./chat";
 
 export function ChatTriggerButton(props: {
   onClick?: () => void;
@@ -52,15 +53,7 @@ export function ChatTriggerButton(props: {
             <Cross2Icon fontSize={23} />
           </Button>
         </div>
-        <div className={cn(`
-            h-full
-            rounded
-            ${theme_styles.bg_default}
-            mt-3
-            p-2
-        `)}>
-          
-        </div>
+        <Chat />
       </div>
     )
   }
