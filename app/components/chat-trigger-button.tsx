@@ -25,6 +25,12 @@ export function ChatTriggerButton(props: {
     return (
       <motion.div
         layoutId="chat-container"
+        initial={{
+          borderRadius: '6px',
+        }}
+        animate={{
+          borderRadius: '6px',
+        }}
         className={cn(`
           rounded-md
           fixed bottom-4 right-4
@@ -69,6 +75,12 @@ export function ChatTriggerButton(props: {
     <motion.button
       onClick={openChat}
       layoutId="chat-container"
+      initial={{
+        borderRadius: '6px',
+      }}
+      animate={{
+        borderRadius: '6px',
+      }}
       transition={{
         delay: 0,
       }}
@@ -92,21 +104,23 @@ export function ChatTriggerButton(props: {
       }
       >
       {wasMounted ?
-      <MotionChatBubble
-        className="max-w-[20px] max-h-[20px]"
-        initial={{
-          opacity: 0,
-          scale: 3,
-        }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-        }}
-        transition={{
-          delay: 0.25,
-        }}
-        fontSize={23}
-      /> : <LoadingIcon/> }
+        <MotionChatBubble
+          className="max-w-[20px] max-h-[20px]"
+          initial={{
+            opacity: 0,
+            scale: 3,
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+          }}
+          transition={{
+            delay: 0.25,
+          }}
+          fontSize={23}
+        /> :
+        <LoadingIcon/>
+      }
     </motion.button>
   );
 }
