@@ -2,14 +2,16 @@ import { cn } from '@/lib/utils';
 import { TypographyH1 } from './components/basic/h1';
 import { theme_styles } from './style-constants';
 import { Card } from '@/components/ui/card';
+import { ChatTriggerButton } from './components/chat-trigger-button';
 
 export default function Home() {
   return (
     <div className={cn(`
       container
       max-w-5xl
-      px-2 md:px-4
+      px-2 sm:px4 md:px-6
     `)}>
+      <ChatTriggerButton />
       <TypographyH1
         className={cn(`
           mt-6

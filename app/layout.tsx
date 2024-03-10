@@ -11,6 +11,12 @@ const font = Montserrat({ subsets: ['latin'] });
 
 export const metadata: Metadata = metadataObj;
 
+const faviconLink = (favicon: string, size = 80) => (
+  <link rel="icon" href={`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%22${size}%22>${favicon}</text></svg>`}></link>
+)
+
+const isProd = process.env.NODE_ENV === 'production';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -18,17 +24,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className='dark'>
-      <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🤖</text></svg>"></link>
+      {isProd ? faviconLink('🤖') : faviconLink('🚧')}
       <body className={font.className}>
         <AppProviders>
-          <ThemeSwitch />
           <main className={cn(`
               flex flex-col
               items-center
               min-h-[100dvh]
               ${theme_styles.bg_default}
-            `)}
+              `)}
           >
+            <ThemeSwitch />
             {children}
           </main>
         </AppProviders>
