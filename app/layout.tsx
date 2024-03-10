@@ -7,6 +7,7 @@ import ThemeSwitch from './components/theme-switch';
 import { metadataObj } from './constants';
 import { cn } from '@/lib/utils';
 import { FaviconLinkTag } from './components/utils/favicon-link-tag';
+import { APP_VERSION_HASH } from './hooks/functions';
 
 export const metadata: Metadata = metadataObj;
 
@@ -28,6 +29,7 @@ export default function RootLayout({
               min-h-[100dvh]
               ${theme_styles.bg_default}
               `)}
+              data-meta-app-version={APP_VERSION_HASH}
           >
             <ThemeSwitch />
             {children}
