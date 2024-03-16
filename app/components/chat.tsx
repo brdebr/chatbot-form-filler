@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils";
 import { theme_styles } from "../style-constants";
 import { Button } from "@/components/ui/button";
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
 
 type ChatMessageProps = {
   side: 'left' | 'right';
@@ -42,8 +43,14 @@ const messages = [
   '🧙‍♂️ Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.',
 ]
 export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
+  const [chatInput, setChatInput] = useState('');
+
+  const handleChatInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setChatInput(e.target.value);
+  }
+
   return (
-    <div 
+    <div
       ref={ref}
       className={cn(`
         h-full
@@ -74,7 +81,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
         ))}
       </div>
       <div className="flex gap-2 items-center absolute bottom-4 left-1/2 -translate-x-1/2 w-[95%]">
-        <input type="text" className="border-2 w-full h-6" ></input>
+        <Input value={chatInput} onChange={handleChatInput} placeholder="Type a message" />
         <Button variant="outline" size="icon" className="bg-blue-500 hover:bg-blue-700">
           <PaperPlaneIcon className="text-white" />
         </Button>
