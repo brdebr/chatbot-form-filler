@@ -22,14 +22,14 @@ export default function Home() {
       >
         Chatbot Form Filler
       </TypographyH1>
-      <Card className={`
+      <Card className={cn(`
         rounded
         px-5 py-3
         text-center
         ${theme_styles.default_text_color}
         ${theme_styles.default_text_size}
         ${theme_styles.card_bg_color}
-      `}>
+      `)}>
         This is a demo showcasing the use of Vercel AI SDK to fill out a form using a chatbot.
       </Card>
     </div>
