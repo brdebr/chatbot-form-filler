@@ -3,6 +3,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { VariantProps, cva } from "class-variance-authority"
 import { theme_styles } from "@/app/style-constants"
+import { useId } from "react"
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement>, VariantProps<typeof inputVariants> {}
@@ -24,10 +25,12 @@ const inputVariants = cva(`
   border
   border-slate-200
   dark:border-slate-800
+  outline-none
 
-  bg-slate-100 dark:bg-slate-800
+  bg-slate-50 dark:bg-slate-800
   ${theme_styles.default_text_color}
-  transition-colors
+  transition-all
+  duration-500
   ${fileStyles}
 
   focus:placeholder:text-opacity-80
@@ -75,3 +78,25 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = "Input"
 
 export { Input }
+
+const InputWithLabel = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, variant, ...props }, ref) => {
+  const accessibilityId = useId()
+  return (
+    <div className={cn('grid w-full items-center gap-1', className)}>
+      <label className={cn(`
+        ${theme_styles.default_text_color}
+        font-medium
+        tracking-wide
+        text-sm
+        pl-1
+      `)} htmlFor={accessibilityId}>
+        {props["aria-label"]}
+      </label>
+      <Input type={type} variant={variant} ref={ref} id={accessibilityId} {...props} />
+    </div>
+  )
+})
+InputWithLabel.displayName = "InputWithLabel";
+
+export { InputWithLabel }
