@@ -5,10 +5,25 @@ import { PaperPlaneIcon } from "@radix-ui/react-icons";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import { useChat } from "ai/react";
+import { Message } from "ai";
+
+const mockData = {
+  "firstName": "Bryan",
+  "lastName": "",
+  "email": "",
+  "phone": "",
+  "birthdate": {
+    "day": "",
+    "month": "",
+    "year": ""
+  },
+  "nationality": ""
+};
 
 type ChatMessageProps = {
   side: 'left' | 'right';
-  message: ChatMessageType;
+  message: Message;
 };
 
 export const useTypewriter = (text: string, setDisplayText: (value: React.SetStateAction<string>) => void, speed = 50) => {
@@ -56,35 +71,57 @@ export type ChatMessageType = {
   role: 'user' | 'assistant';
 };
 
-const messagesMock: ChatMessageType[] = [
-  { content: 'Hello, How are you?', role: 'user' },
-  { content: 'I am fine, thank you. \n How can I help you?', role: 'assistant' },
-  { content: 'I need help with a form.', role: 'user' },
-  { content: 'Sure, I can help you with that.', role: 'assistant' },
-  { content: '👹 Lorem impsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', role: 'user' },
-  { content: '🧙‍♂️ Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.', role: 'assistant' },
-]
+// const messagesMock: ChatMessageType[] = [
+//   { content: 'Hello, How are you?', role: 'user' },
+//   { content: 'I am fine, thank you. \n How can I help you?', role: 'assistant' },
+//   { content: 'I need help with a form.', role: 'user' },
+//   { content: 'Sure, I can help you with that.', role: 'assistant' },
+//   { content: '👹 Lorem impsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', role: 'user' },
+//   { content: '🧙‍♂️ Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.', role: 'assistant' },
+// ]
 
 export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
-  const [chatInput, setChatInput] = useState('');
+  // const [messages, setMessages] = useState<ChatMessageType[]>([]);
+  // const [chatInput, setChatInput] = useState('');
   const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
-  const handleChatInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChatInput(e.target.value);
-  }
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/chatbot',
+    experimental_onFunctionCall: async (
+      chatMessages,
+      functionCall,
+    ) => {
+      if (functionCall.name === 'get_form_state') {
+        return {
+          messages: [
+            ...chatMessages,
+            {
+              id: crypto.randomUUID(),
+              name: 'get_form_state',
+              role: 'function',
+              content: JSON.stringify(mockData, null, 2),
+            },
+          ],
+        }
+      }
+    }
+  });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (chatInput.trim() === '') return;
+  // const handleChatInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setChatInput(e.target.value);
+  // }
 
-    setMessages([...messages, {
-      content: chatInput,
-      role: 'user',
-    }]);
-    setChatInput('');
-    inputRef.current?.blur();
-  }
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   if (chatInput.trim() === '') return;
+
+  //   setMessages([...messages, {
+  //     content: chatInput,
+  //     role: 'user',
+  //   }]);
+  //   setChatInput('');
+  //   inputRef.current?.blur();
+  // }
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -130,8 +167,8 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
       </div>
       <form onSubmit={handleSubmit} className="absolute bottom-5 left-1/2 -translate-x-1/2 w-full">
         <div className="flex gap-3 items-center px-4">
-          <Input ref={inputRef} value={chatInput} onChange={handleChatInput} disabled={inputIsDisabled} placeholder="Type a message" />
-          <Button type="submit" variant="outline" size="icon" disabled={!chatInput.trim().length} className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
+          <Input ref={inputRef} value={input} onChange={handleInputChange} disabled={inputIsDisabled} placeholder="Type a message" />
+          <Button type="submit" variant="outline" size="icon" disabled={!input.trim().length} className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
             <PaperPlaneIcon className="text-white translate-x-[1px]" />
           </Button>
         </div>
