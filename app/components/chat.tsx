@@ -131,7 +131,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
       <form onSubmit={handleSubmit} className="absolute bottom-5 left-1/2 -translate-x-1/2 w-full">
         <div className="flex gap-3 items-center px-4">
           <Input ref={inputRef} value={chatInput} onChange={handleChatInput} disabled={inputIsDisabled} placeholder="Type a message" />
-          <Button type="submit" variant="outline" size="icon" disabled={!chatInput.trim().length} className="size-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
+          <Button type="submit" variant="outline" size="icon" disabled={!chatInput.trim().length} className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
             <PaperPlaneIcon className="text-white translate-x-[1px]" />
           </Button>
         </div>
