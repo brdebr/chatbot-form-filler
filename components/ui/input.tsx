@@ -93,8 +93,9 @@ const InputWithLabel = React.forwardRef<HTMLInputElement, InputProps>(
         tracking-wide
         text-sm
         pl-1
+        ${props.highlight && "text-purple-800"}
       `)} htmlFor={accessibilityId}>
-        {props["aria-label"]} {props.highlight && "👇🤖"}
+        {props["aria-label"]} <span className="inline-block ml-3">{props.highlight && "👇🤖"}</span>
       </label>
       <Input ref={ref} id={accessibilityId} {...props} />
     </div>

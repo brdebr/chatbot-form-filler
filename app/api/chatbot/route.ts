@@ -31,6 +31,23 @@ const functions: ChatCompletionCreateParams.Function[] = [
         },
       },
     }
+  },
+  {
+    name: 'insert_into_field',
+    description: 'Inserts a value into a field in the form.',
+    parameters: {
+      type: 'object',
+      properties: {
+        field: {
+          type: 'string',
+          description: 'The name of the field to insert the value into.',
+        },
+        value: {
+          type: 'string',
+          description: 'The value to insert into the field.',
+        },
+      },
+    }
   }
 ];
 
@@ -38,7 +55,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo-0613',
+    model: 'gpt-4-turbo-preview',
     stream: true,
     messages,
     functions,
@@ -59,10 +76,6 @@ export async function POST(req: Request) {
       data.close();
     },
     experimental_streamData: true,
-  });
-
-  data.append({
-    text: 'You are an assistant in charge to help the user fill a form. You must ask the user for the information needed to fill the form until is complete. At first you must call the function `get_form_state` to get the current form state.',
   });
 
   return new StreamingTextResponse(stream, {}, data);

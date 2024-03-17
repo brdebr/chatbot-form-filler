@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { theme_styles } from "../style-constants";
 import { Button } from "@/components/ui/button";
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
@@ -14,43 +14,42 @@ type ChatMessageProps = {
   message: Message;
 };
 
-export const useTypewriter = (text: string, setDisplayText: (value: React.SetStateAction<string>) => void, speed = 50) => {
-  useEffect(() => {
-    setDisplayText('');
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayText((prevText) => prevText + text.charAt(i));
-        i++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, speed);
-
-    return () => {
-      clearInterval(typingInterval);
-    };
-  }, [text, speed, setDisplayText]);
-}
-
+const rolesMap: Record<Message['role'], string> = {
+  user: 'You',
+  assistant: 'Assistant',
+  system: 'System',
+  function: 'Function',
+  data: 'Data',
+  tool: 'Tool',
+};
 
 export function ChatMessage({ message, side }: ChatMessageProps) {
+  const content = message.content ? message.content : (
+    <pre>{JSON.stringify(message, null, 2)}</pre>
+  );
   return (
     <div
       className={cn(`
-          ${side === 'left' ? 'rounded-bl' : 'rounded-br'}
-          ${side === 'left' ? 'bg-blue-400 bg-opacity-40 dark:bg-blue-900 dark:bg-opacity-50': 'bg-teal-400 bg-opacity-50 dark:bg-teal-800 dark:bg-opacity-70'}
+          ${side === 'left' ? 'rounded-r mr-auto' : 'rounded-r ml-auto'}
+          ${message.role === 'user' ? 'bg-teal-400 bg-opacity-50 dark:bg-teal-800 dark:bg-opacity-70' : ''}
+          ${message.role === 'assistant' ? 'bg-blue-400 bg-opacity-40 dark:bg-blue-900 dark:bg-opacity-50' : ''}
+          ${message.role === 'system' ? 'bg-gray-400 bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-70 !text-sm whitespace-break-spaces' : ''}
+          ${message.role === 'function' ? 'bg-yellow-400 bg-opacity-50 dark:bg-yellow-800 dark:bg-opacity-70 whitespace-pre !text-sm' : ''}
           transition-colors
           w-3/4
-          whitespace-pre-line
-          ${side === 'left' ? 'mr-auto' : 'ml-auto'}
           ${theme_styles.default_text_color}
           ${theme_styles.default_text_size}
           text-opacity-90 dark:text-opacity-90
           p-2
-          rounded
       `)}
-    >{message.content}</div>
+    >
+      <div className="px-1 text-xs mb-3 font-medium tracking-wide border-b border-black border-opacity-5 dark:border-white dark:border-opacity-20 pb-1">
+        {rolesMap[message.role]} - {(message.createdAt || new Date()).toLocaleTimeString()}
+      </div>
+      <div>
+        {content}
+      </div>
+    </div>
   );
 }
 
@@ -62,11 +61,32 @@ export type ChatMessageType = {
 const rolesToShow = ['user', 'assistant'];
 
 export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
-  const { formState, highlighted, setHighlighted } = useFormStore();
+  const { formState, highlighted, setHighlighted, setFormFieldTypewriting, setFormField } = useFormStore();
   const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
     api: '/api/chatbot',
+    initialMessages: [
+      {
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        role: 'system',
+        content: 'You are an assistant in charge to help the user fill a form.\nAt first you must call the function `get_form_state` to get the current form state.\nThen you must ask the user for the information needed to fill the form until is complete.\nIf the user provides wrong or invalid information, inform the user and try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NO MARKDOWN.'
+      },
+      {
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        role: 'function',
+        name: 'get_form_state',
+        content: 'The form state is now:\n' + JSON.stringify(formState, null, 2),
+      },
+      {
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        role: 'assistant',
+        content: 'Hello! I am here to help you fill the form. Shall we start?'
+      }
+    ],
     experimental_onFunctionCall: async (
       chatMessages,
       functionCall,
@@ -79,13 +99,12 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
               id: crypto.randomUUID(),
               name: 'get_form_state',
               role: 'function',
-              content: JSON.stringify(formState, null, 2),
+              content: `The form state is now:\n${JSON.stringify(formState, null, 2)}`,
             },
           ],
         }
       }
       if (functionCall.name === 'highlight_field') {
-        console.log('highlight_field', functionCall.arguments);
         const parsedArgs = JSON.parse(functionCall.arguments || '{}');
         if (!parsedArgs.field) {
           return {
@@ -108,13 +127,44 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
               id: crypto.randomUUID(),
               name: 'highlight_field',
               role: 'function',
-              content: `Highlighted field: ${parsedArgs.field}`,
+              content: `Highlighted field: "${parsedArgs.field}"`,
+            },
+          ],
+        }
+      }
+      if (functionCall.name === 'insert_into_field') {
+        const parsedArgs = JSON.parse(functionCall.arguments || '{}');
+        if (!parsedArgs.field || !parsedArgs.value) {
+          return {
+            messages: [
+              ...chatMessages,
+              {
+                id: crypto.randomUUID(),
+                name: 'insert_into_field',
+                role: 'function',
+                content: `Error: No field or value provided.`,
+              },
+            ],
+          }
+        }
+        setFormField(parsedArgs.field, '');
+        setFormFieldTypewriting(parsedArgs.field, parsedArgs.value);
+        return {
+          messages: [
+            ...chatMessages,
+            {
+              id: crypto.randomUUID(),
+              name: 'insert_into_field',
+              role: 'function',
+              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify(formState, null, 2)}`,
             },
           ],
         }
       }
     }
   });
+
+  const messagesToShow = messages.filter((message) => rolesToShow.includes(message.role) && message.content);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -125,6 +175,12 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
     messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
   }, [messages]);
   const messagesContainerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    return () => {
+      setHighlighted('');
+    }
+  }, [setHighlighted]);
 
   return (
     <div
@@ -155,7 +211,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
           flex flex-col
           gap-3
         `)}>
-        {messages.filter(el => rolesToShow.includes(el.role)).map((message, index) => (
+        {messages.map((message, index) => (
           <ChatMessage key={index} message={message} side={message.role === 'user' ? 'right' : 'left'} />
         ))}
       </div>

@@ -17,11 +17,17 @@ type FormStore = {
   formState: FormState;
   highlighted: string;
   setHighlighted: (value: string) => void;
+  setFormField: (field: keyof FormState, value: string) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDateChange: (value: string, key: keyof FormState['birthdate']) => void;
+  setFormFieldTypewriting: (
+    field: keyof FormState,
+    value: string,
+    speed?: number
+  ) => void;
 };
 
-const useFormStore = create<FormStore>(set => ({
+const useFormStore = create<FormStore>((set) => ({
   formState: {
     firstName: '',
     lastName: '',
@@ -36,6 +42,28 @@ const useFormStore = create<FormStore>(set => ({
   },
   highlighted: '',
   setHighlighted: (value: string) => set({ highlighted: value }),
+  setFormField: (field, value) => {
+    if (field.includes('.')) {
+      const [field1, field2] = field.split('.');
+      set((state) => ({
+        highlighted: field1,
+        formState: {
+          ...state.formState,
+          [field1 as keyof FormState]: {
+            ...(state.formState[field1 as keyof FormState] as object),
+            [field2]: value,
+          },
+        },
+      }));
+    } else {
+      set((state) => ({
+        formState: {
+          ...state.formState,
+          [field]: value,
+        },
+      }));
+    }
+  },
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) =>
     set((state) => ({
       formState: {
@@ -53,6 +81,37 @@ const useFormStore = create<FormStore>(set => ({
         },
       },
     })),
+  setFormFieldTypewriting: (field, value, speed = 100) => {
+    if (field.includes('.')) {
+      const [field1, field2] = field.split('.');
+      set((state) => ({
+        highlighted: field1,
+        formState: {
+          ...state.formState,
+          [field1 as keyof FormState]: {
+            ...(state.formState[field1 as keyof FormState] as object),
+            [field2]: value,
+          },
+        },
+      }));
+    } else {
+      let i = 0;
+      const typingEffect = () => {
+        if (i < value.length) {
+          set((state) => ({
+            highlighted: field,
+            formState: {
+              ...state.formState,
+              [field]: state.formState[field] + value.charAt(i),
+            },
+          }));
+          i++;
+          setTimeout(typingEffect, speed);
+        }
+      };
+      typingEffect();
+    }
+  },
 }));
 
 export default useFormStore;
