@@ -7,19 +7,7 @@ import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
 import { Message } from "ai";
-
-const mockData = {
-  "firstName": "Bryan",
-  "lastName": "",
-  "email": "",
-  "phone": "",
-  "birthdate": {
-    "day": "",
-    "month": "",
-    "year": ""
-  },
-  "nationality": ""
-};
+import useFormStore from "../store/form";
 
 type ChatMessageProps = {
   side: 'left' | 'right';
@@ -71,18 +59,10 @@ export type ChatMessageType = {
   role: 'user' | 'assistant';
 };
 
-// const messagesMock: ChatMessageType[] = [
-//   { content: 'Hello, How are you?', role: 'user' },
-//   { content: 'I am fine, thank you. \n How can I help you?', role: 'assistant' },
-//   { content: 'I need help with a form.', role: 'user' },
-//   { content: 'Sure, I can help you with that.', role: 'assistant' },
-//   { content: '👹 Lorem impsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', role: 'user' },
-//   { content: '🧙‍♂️ Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.', role: 'assistant' },
-// ]
+const rolesToShow = ['user', 'assistant'];
 
 export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
-  // const [messages, setMessages] = useState<ChatMessageType[]>([]);
-  // const [chatInput, setChatInput] = useState('');
+  const { formState, highlighted, setHighlighted } = useFormStore();
   const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -99,7 +79,36 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
               id: crypto.randomUUID(),
               name: 'get_form_state',
               role: 'function',
-              content: JSON.stringify(mockData, null, 2),
+              content: JSON.stringify(formState, null, 2),
+            },
+          ],
+        }
+      }
+      if (functionCall.name === 'highlight_field') {
+        console.log('highlight_field', functionCall.arguments);
+        const parsedArgs = JSON.parse(functionCall.arguments || '{}');
+        if (!parsedArgs.field) {
+          return {
+            messages: [
+              ...chatMessages,
+              {
+                id: crypto.randomUUID(),
+                name: 'highlight_field',
+                role: 'function',
+                content: `Error: No field provided.`,
+              },
+            ],
+          }
+        }
+        setHighlighted(parsedArgs.field);
+        return {
+          messages: [
+            ...chatMessages,
+            {
+              id: crypto.randomUUID(),
+              name: 'highlight_field',
+              role: 'function',
+              content: `Highlighted field: ${parsedArgs.field}`,
             },
           ],
         }
@@ -107,21 +116,6 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
     }
   });
 
-  // const handleChatInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setChatInput(e.target.value);
-  // }
-
-  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   if (chatInput.trim() === '') return;
-
-  //   setMessages([...messages, {
-  //     content: chatInput,
-  //     role: 'user',
-  //   }]);
-  //   setChatInput('');
-  //   inputRef.current?.blur();
-  // }
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -161,7 +155,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
           flex flex-col
           gap-3
         `)}>
-        {messages.map((message, index) => (
+        {messages.filter(el => rolesToShow.includes(el.role)).map((message, index) => (
           <ChatMessage key={index} message={message} side={message.role === 'user' ? 'right' : 'left'} />
         ))}
       </div>

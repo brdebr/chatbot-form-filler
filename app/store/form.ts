@@ -16,6 +16,7 @@ type FormState = {
 type FormStore = {
   formState: FormState;
   highlighted: string;
+  setHighlighted: (value: string) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDateChange: (value: string, key: keyof FormState['birthdate']) => void;
 };
@@ -34,6 +35,7 @@ const useFormStore = create<FormStore>(set => ({
     nationality: '',
   },
   highlighted: '',
+  setHighlighted: (value: string) => set({ highlighted: value }),
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) =>
     set((state) => ({
       formState: {

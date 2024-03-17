@@ -53,6 +53,12 @@ const inputVariants = cva(`
         default:
           "",
       },
+      highlight: {
+        true: `
+          ring-purple-800
+          ring-2
+        `,
+      }
     },
     defaultVariants: {
       variant: "default",
@@ -61,11 +67,11 @@ const inputVariants = cva(`
 )
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, variant, ...props }, ref) => {
+  ({ className, type, variant, highlight, ...props }, ref) => {
     return (
       <input
         type={type}
-        className={cn(inputVariants({ variant, className }))}
+        className={cn(inputVariants({ variant, highlight, className }))}
         ref={ref}
         {...props}
       />
@@ -77,7 +83,7 @@ Input.displayName = "Input"
 export { Input }
 
 const InputWithLabel = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, variant, ...props }, ref) => {
+  ({ className, ...props }, ref) => {
   const accessibilityId = useId()
   return (
     <div className={cn('grid w-full items-center gap-1', className)}>
@@ -88,9 +94,9 @@ const InputWithLabel = React.forwardRef<HTMLInputElement, InputProps>(
         text-sm
         pl-1
       `)} htmlFor={accessibilityId}>
-        {props["aria-label"]}
+        {props["aria-label"]} {props.highlight && "👇🤖"}
       </label>
-      <Input type={type} variant={variant} ref={ref} id={accessibilityId} {...props} />
+      <Input ref={ref} id={accessibilityId} {...props} />
     </div>
   )
 })

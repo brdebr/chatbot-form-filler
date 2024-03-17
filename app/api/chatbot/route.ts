@@ -19,6 +19,19 @@ const functions: ChatCompletionCreateParams.Function[] = [
     name: 'get_form_state',
     description: 'Get the current form state.',
   },
+  {
+    name: 'highlight_field',
+    description: 'Highlights a field in the form so the user can know what field the assistant is talking about.',
+    parameters: {
+      type: 'object',
+      properties: {
+        field: {
+          type: 'string',
+          description: 'The name of the field to highlight. If passed an empty string, will remove the highlight from the fields.',
+        },
+      },
+    }
+  }
 ];
 
 export async function POST(req: Request) {
@@ -49,7 +62,7 @@ export async function POST(req: Request) {
   });
 
   data.append({
-    text: 'Hello, how are you?',
+    text: 'You are an assistant in charge to help the user fill a form. You must ask the user for the information needed to fill the form until is complete. At first you must call the function `get_form_state` to get the current form state.',
   });
 
   return new StreamingTextResponse(stream, {}, data);
