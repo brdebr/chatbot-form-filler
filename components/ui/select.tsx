@@ -28,7 +28,7 @@ const SelectTrigger = React.forwardRef<
       `
       flex
       items-center justify-between
-      h-[42px]
+      h-[38px] lg:h-[42px]
       w-full
       px-3 py-2
       whitespace-nowrap
