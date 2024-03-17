@@ -86,26 +86,26 @@ export function FormToFill() {
     <Card className={cn(`
       rounded
       px-5 py-3
-      flex flex-col gap-3
+      flex flex-col gap-5
       ${theme_styles.default_text_color}
       ${theme_styles.default_text_size}
       ${theme_styles.card_bg_color}
     `)}>
-      <div className='flex gap-3 mt-2'>
+      <div className='flex flex-col sm:flex-row gap-3'>
         <InputWithLabel onChange={handleInputChange} value={formState.firstName} name="firstName" aria-label='First name' />
         <InputWithLabel onChange={handleInputChange} value={formState.lastName} name="lastName" aria-label='Last name' />
       </div>
-      <div className='flex gap-3 mt-2'>
+      <div className='flex flex-col sm:flex-row gap-3'>
         <InputWithLabel onChange={handleInputChange} value={formState.email} name="email" type='email' aria-label='Email' />
         <InputWithLabel onChange={handleInputChange} value={formState.phone} name="phone" type='phone' aria-label='Phone' />
       </div>
-      <div className='flex gap-3 mt-2'>
-        <div className="flex gap-3 w-1/2">
+      <div className='flex flex-col sm:flex-row sm:gap-3 gap-5'>
+        <div className="flex gap-3 sm:w-1/2">
           <DateSelector name="Day" values={days} value={formState.birthdate.day} setValue={(value) => handleDateChange(value, 'day')} />
           <DateSelector name="Month" values={months} value={formState.birthdate.month} setValue={(value) => handleDateChange(value, 'month')} />
           <DateSelector name="Year" values={years} value={formState.birthdate.year} setValue={(value) => handleDateChange(value, 'year')} />
         </div>
-        <div className="flex gap-3 w-1/2">
+        <div className="flex gap-3 sm:w-1/2">
           <InputWithLabel onChange={handleInputChange} value={formState.nationality} name="nationality" type='text' className=' max-w-lg' aria-label='Nationality' />
         </div>
       </div>

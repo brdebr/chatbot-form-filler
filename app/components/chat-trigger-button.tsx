@@ -32,6 +32,7 @@ export function ChatTriggerButton(props: {
           className={cn(`
             rounded-md
             fixed bottom-4 right-4
+            z-10
             h-[550px] lg:h-[650px]
             max-h-[80dvh]
             max-w-[85vw] sm:max-w-[75vw] md:max-w-[65vw] lg:max-w-[45vw]
