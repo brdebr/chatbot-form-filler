@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
     },
     onCompletion(completion) {
-      console.log('completion', completion);
+      console.log('completion\n', completion);
     },
     onFinal(completion) {
       data.close();

@@ -33,7 +33,8 @@ export function ChatMessage({ message, side }: ChatMessageProps) {
       className={cn(`
           ${side === 'left' ? 'rounded-r mr-auto' : 'rounded-r ml-auto'}
           ${message.role === 'user' ? 'bg-teal-400 bg-opacity-50 dark:bg-teal-800 dark:bg-opacity-70' : ''}
-          ${message.role === 'assistant' ? 'bg-blue-400 bg-opacity-40 dark:bg-blue-900 dark:bg-opacity-50' : ''}
+          ${message.role === 'assistant' && message.content ? 'bg-blue-400 bg-opacity-40 dark:bg-blue-900 dark:bg-opacity-50' : ''}
+          ${message.role === 'assistant' && !message.content ? 'bg-violet-400 bg-opacity-40 dark:bg-violet-900 dark:bg-opacity-50' : ''}
           ${message.role === 'system' ? 'bg-gray-400 bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-70 !text-sm whitespace-break-spaces' : ''}
           ${message.role === 'function' ? 'bg-yellow-400 bg-opacity-50 dark:bg-yellow-800 dark:bg-opacity-70 whitespace-pre !text-sm' : ''}
           transition-colors
@@ -72,7 +73,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
         id: uuid(),
         createdAt: new Date(Date.now() - 3000),
         role: 'system',
-        content: 'You are an assistant in charge of helping the user fill a form.\nAt first you must call the function `get_form_state` to get the current form state.\nYou must ask the user for all the information that is missing to fill the form, until is complete.\nYou must validate that the user provides correct information.If the information is not valid you should inform the user and ask to try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NEVER MARKDOWN.'
+        content: 'You are an assistant in charge of helping the user fill a form.\nYou must ask the user for all the information that is missing to fill the form, until is complete.\nYou must validate that the user provides correct information. If the information is not valid you should inform the user and ask to try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NEVER MARKDOWN.'
       },
       {
         id: uuid(),
@@ -134,9 +135,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
               id: uuid(),
               name: 'highlight_field',
               role: 'function',
-              content: JSON.stringify({
-                highlighted_field: highlighted,
-              }, null, 2),
+              content: `Highlighted field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field}, null, 2)}`,
             },
           ],
         }
@@ -165,7 +164,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
               id: uuid(),
               name: 'insert_into_field',
               role: 'function',
-              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: newState.formState}, null, 2)}`,
+              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field, current_form_state: newState.formState}, null, 2)}`,
             },
           ],
         }
