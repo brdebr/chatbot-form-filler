@@ -24,10 +24,10 @@ type FormStore = {
     field: keyof FormState,
     value: string,
     speed?: number
-  ) => void;
+  ) => { formState: FormState };
 };
 
-const useFormStore = create<FormStore>((set) => ({
+const useFormStore = create<FormStore>((set, get) => ({
   formState: {
     firstName: '',
     lastName: '',
@@ -94,6 +94,11 @@ const useFormStore = create<FormStore>((set) => ({
           },
         },
       }));
+      return {
+        formState: {
+          ...get().formState
+        },
+      }
     } else {
       let i = 0;
       const typingEffect = () => {
@@ -110,6 +115,12 @@ const useFormStore = create<FormStore>((set) => ({
         }
       };
       typingEffect();
+      return {
+        formState: {
+          ...get().formState,
+          [field]: value,
+        },
+      }
     }
   },
 }));

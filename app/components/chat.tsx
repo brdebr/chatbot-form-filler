@@ -17,8 +17,8 @@ type ChatMessageProps = {
 const rolesMap: Record<Message['role'], string> = {
   user: 'You',
   assistant: 'Assistant',
-  system: 'System',
-  function: 'Function',
+  system: 'System prompt',
+  function: 'Function output',
   data: 'Data',
   tool: 'Tool',
 };
@@ -43,7 +43,7 @@ export function ChatMessage({ message, side }: ChatMessageProps) {
           p-2
       `)}
     >
-      <div className="px-1 text-xs mb-3 font-medium tracking-wide border-b border-black border-opacity-5 dark:border-white dark:border-opacity-20 pb-1">
+      <div className="px-1 text-xs mb-2 font-medium tracking-wide border-b border-black border-opacity-5 dark:border-white dark:border-opacity-20 pb-1">
         {rolesMap[message.role]} - {(message.createdAt || new Date()).toLocaleTimeString()}
       </div>
       <div>
@@ -60,7 +60,7 @@ export type ChatMessageType = {
 
 const rolesToShow = ['user', 'assistant'];
 
-export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
+export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug }, ref) => {
   const { formState, highlighted, setHighlighted, setFormFieldTypewriting, setFormField } = useFormStore();
   const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
@@ -148,7 +148,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
           }
         }
         setFormField(parsedArgs.field, '');
-        setFormFieldTypewriting(parsedArgs.field, parsedArgs.value);
+        const newState = setFormFieldTypewriting(parsedArgs.field, parsedArgs.value);
         return {
           messages: [
             ...chatMessages,
@@ -156,7 +156,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
               id: crypto.randomUUID(),
               name: 'insert_into_field',
               role: 'function',
-              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify(formState, null, 2)}`,
+              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify(newState.formState, null, 2)}`,
             },
           ],
         }
@@ -164,7 +164,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
     }
   });
 
-  const messagesToShow = messages.filter((message) => rolesToShow.includes(message.role) && message.content);
+  const messagesToShow = !debug ? messages.filter((message) => rolesToShow.includes(message.role) && message.content) : messages;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -173,7 +173,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
       return;
     }
     messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-  }, [messages]);
+  }, [messagesToShow]);
   const messagesContainerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -211,7 +211,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
           flex flex-col
           gap-3
         `)}>
-        {messages.map((message, index) => (
+        {messagesToShow.map((message, index) => (
           <ChatMessage key={index} message={message} side={message.role === 'user' ? 'right' : 'left'} />
         ))}
       </div>

@@ -4,7 +4,7 @@ import { ChatBubbleIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { cn } from "@/lib/utils";
 import { useWasMounted } from "../hooks/utils";
 import { LoadingIcon } from "./utils/loading-icon";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { TypographyH4 } from "./basic/h4";
 import { Chat, MotionChat } from "./chat";
 import { AnimatePresence, motion } from "framer-motion";
@@ -16,6 +16,8 @@ export function ChatTriggerButton(props: {
 }) {
   const wasMounted = useWasMounted();
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isDebugOpen, setIsDebugOpen] = useState(false);
+  const isDebugAccessibilityId = useId();
 
   return (
     <AnimatePresence>
@@ -45,12 +47,18 @@ export function ChatTriggerButton(props: {
           `)}
         >
           <div className={cn(`
-            flex justify-between items-center
+            flex items-center
           `)}>
             <TypographyH4 className="dark ml-1">
               <span className="inline-block mr-3">🤖</span>
               Chat with assistant
             </TypographyH4>
+            <div className="ml-auto flex items-center gap-2 px-3 mr-3">
+              <input type="checkbox" checked={isDebugOpen} onChange={() => setIsDebugOpen(!isDebugOpen)} id={isDebugAccessibilityId} />
+              <label htmlFor={isDebugAccessibilityId}>
+                show debug
+              </label>
+            </div>
             <Button
               onClick={() => setIsChatOpen(false)}
               variant='outline'
@@ -66,6 +74,7 @@ export function ChatTriggerButton(props: {
             </Button>
           </div>
           <MotionChat
+            debug={isDebugOpen}
             key="motion-chat"
             initial={{
               opacity: 0,
