@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useId, useState } from "react";
 import { theme_styles } from "../style-constants";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import useFormStore from "../store/form";
 
 const days = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
 const months = Array.from({ length: 12 }, (_, i) => `${i + 1}`);
@@ -51,36 +52,7 @@ function DateSelector({ value, setValue, name, values }: DateSelectorProps) {
 }
 
 export function FormToFill() {
-  const [formState, setFormState] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    birthdate: {
-      day: '',
-      month: '',
-      year: '',
-    },
-    nationality: '',
-  });
-
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState({
-      ...formState,
-      [e.target.name]: e.target.value,
-    });
-  }, [formState]);
-
-  const handleDateChange = useCallback((value: string, key: keyof typeof formState['birthdate']) => {
-    setFormState({
-      ...formState,
-      birthdate: {
-        ...formState.birthdate,
-        [key]: value,
-      },
-    });
-  }, [formState]);
-
+  const { formState, handleDateChange, handleInputChange } = useFormStore();
 
   return (
     <Card className={cn(`
