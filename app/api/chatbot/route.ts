@@ -44,7 +44,7 @@ const functions: ChatCompletionCreateParams.Function[] = [
         },
         value: {
           type: 'string',
-          description: 'The value to insert into the field.',
+          description: 'The value to insert into the field. In case of dates always use the numeric representation of the date starting from 1. For example, "01" for January, "31" for the day, and "1990" for the year.',
         },
       },
     }

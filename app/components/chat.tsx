@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { theme_styles } from "../style-constants";
 import { Button } from "@/components/ui/button";
-import { PaperPlaneIcon } from "@radix-ui/react-icons";
+import { PaperPlaneIcon, ReloadIcon, StopIcon } from "@radix-ui/react-icons";
 import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useChat } from "ai/react";
 import { Message } from "ai";
 import useFormStore from "../store/form";
 import { v4 as uuid } from 'uuid';
+import { LoadingIcon } from "./utils/loading-icon";
 
 type ChatMessageProps = {
   side: 'left' | 'right';
@@ -63,27 +64,29 @@ const rolesToShow = ['user', 'assistant'];
 
 export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug }, ref) => {
   const { formState, highlighted, setHighlighted, setFormFieldTypewriting, setFormField } = useFormStore();
-  const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
-  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, reload, isLoading, stop } = useChat({
     api: '/api/chatbot',
     initialMessages: [
       {
         id: uuid(),
-        createdAt: new Date(),
+        createdAt: new Date(Date.now() - 3000),
         role: 'system',
-        content: 'You are an assistant in charge to help the user fill a form.\nAt first you must call the function `get_form_state` to get the current form state.\nThen you must ask the user for the information needed to fill the form until is complete.\nIf the user provides wrong or invalid information, inform the user and try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NO MARKDOWN.'
+        content: 'You are an assistant in charge of helping the user fill a form.\nAt first you must call the function `get_form_state` to get the current form state.\nYou must ask the user for all the information that is missing to fill the form, until is complete.\nYou must validate that the user provides correct information.If the information is not valid you should inform the user and ask to try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NEVER MARKDOWN.'
       },
       {
         id: uuid(),
-        createdAt: new Date(),
+        createdAt: new Date(Date.now() - 2000),
         role: 'function',
         name: 'get_form_state',
-        content: 'The form state is now:\n' + JSON.stringify(formState, null, 2),
+        content: JSON.stringify({
+          current_form_state: formState,
+          highlighted_field: highlighted
+        }, null, 2),
       },
       {
         id: uuid(),
-        createdAt: new Date(),
+        createdAt: new Date(Date.now() - 1000),
         role: 'assistant',
         content: 'Hello! I am here to help you fill the form. Shall we start?'
       }
@@ -100,7 +103,10 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
               id: uuid(),
               name: 'get_form_state',
               role: 'function',
-              content: `The form state is now:\n${JSON.stringify(formState, null, 2)}`,
+              content: JSON.stringify({
+                highlighted_field: highlighted,
+                current_form_state: formState
+              }, null, 2),
             },
           ],
         }
@@ -128,7 +134,9 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
               id: uuid(),
               name: 'highlight_field',
               role: 'function',
-              content: `Highlighted field: "${parsedArgs.field}"`,
+              content: JSON.stringify({
+                highlighted_field: highlighted,
+              }, null, 2),
             },
           ],
         }
@@ -157,7 +165,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
               id: uuid(),
               name: 'insert_into_field',
               role: 'function',
-              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify(newState.formState, null, 2)}`,
+              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: newState.formState}, null, 2)}`,
             },
           ],
         }
@@ -182,6 +190,9 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
       setHighlighted('');
     }
   }, [setHighlighted]);
+
+  const inputIsEmpty = !input.trim().length;
+  const canReload = inputIsEmpty && !!messages.filter((message) => message.role === 'user').length;
 
   return (
     <div
@@ -218,10 +229,21 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
       </div>
       <form onSubmit={handleSubmit} className="absolute bottom-5 left-1/2 -translate-x-1/2 w-full">
         <div className="flex gap-3 items-center px-4">
-          <Input ref={inputRef} value={input} onChange={handleInputChange} disabled={inputIsDisabled} placeholder="Type a message" />
-          <Button type="submit" variant="outline" size="icon" disabled={!input.trim().length} className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
-            <PaperPlaneIcon className="text-white translate-x-[1px]" />
-          </Button>
+          <Input ref={inputRef} value={input} onChange={handleInputChange} disabled={isLoading} placeholder="Type a message" />
+          {!isLoading ? (
+            <Button type={canReload ? "submit" : "button"} onClick={() => canReload ? reload() : false} variant="outline" size="icon" className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
+              {!canReload ? (
+                <PaperPlaneIcon className="text-white translate-x-[1px]" />
+              ) : (
+                <ReloadIcon className="text-white" />
+              )}
+            </Button>
+          ): (
+            <Button type="button" onClick={stop} variant="outline" size="icon" className="size-10 min-w-10 min-h-10 group bg-blue-500 hover:bg-red-800 active:bg-blue-800 transition-all duration-500">
+              <LoadingIcon className="text-white group-hover:hidden" />
+              <StopIcon className="text-white hidden group-hover:block" />
+            </Button>
+          )}
         </div>
       </form>
     </div>

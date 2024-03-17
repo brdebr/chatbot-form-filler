@@ -81,7 +81,7 @@ const useFormStore = create<FormStore>((set, get) => ({
         },
       },
     })),
-  setFormFieldTypewriting: (field, value, speed = 100) => {
+  setFormFieldTypewriting: (field, value, speed = 85) => {
     if (field.includes('.')) {
       const [field1, field2] = field.split('.');
       set((state) => ({
