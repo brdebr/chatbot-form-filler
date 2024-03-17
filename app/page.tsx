@@ -3,6 +3,7 @@ import { TypographyH1 } from './components/basic/h1';
 import { theme_styles } from './style-constants';
 import { Card } from '@/components/ui/card';
 import { ChatTriggerButton } from './components/chat-trigger-button';
+import { FormToFill } from './components/FormToFill';
 
 export default function Home() {
   return (
@@ -26,12 +27,14 @@ export default function Home() {
         rounded
         px-5 py-3
         text-center
+        mb-6
         ${theme_styles.default_text_color}
         ${theme_styles.default_text_size}
         ${theme_styles.card_bg_color}
       `)}>
         This is a demo showcasing the use of Vercel AI SDK to fill out a form using a chatbot.
       </Card>
+      <FormToFill />
     </div>
   );
 }

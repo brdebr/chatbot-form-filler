@@ -11,6 +11,26 @@ type ChatMessageProps = {
   message: ChatMessageType;
 };
 
+export const useTypewriter = (text: string, setDisplayText: (value: React.SetStateAction<string>) => void, speed = 50) => {
+  useEffect(() => {
+    setDisplayText('');
+    let i = 0;
+    const typingInterval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayText((prevText) => prevText + text.charAt(i));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, speed);
+
+    return () => {
+      clearInterval(typingInterval);
+    };
+  }, [text, speed, setDisplayText]);
+}
+
+
 export function ChatMessage({ message, side }: ChatMessageProps) {
   return (
     <div
@@ -48,6 +68,7 @@ const messagesMock: ChatMessageType[] = [
 export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [chatInput, setChatInput] = useState('');
+  const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
   const handleChatInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChatInput(e.target.value);
@@ -109,8 +130,8 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
       </div>
       <form onSubmit={handleSubmit} className="absolute bottom-5 left-1/2 -translate-x-1/2 w-full">
         <div className="flex gap-3 items-center px-4">
-          <Input ref={inputRef} value={chatInput} onChange={handleChatInput} placeholder="Type a message" />
-          <Button type="submit" variant="outline" size="icon" className="size-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800">
+          <Input ref={inputRef} value={chatInput} onChange={handleChatInput} disabled={inputIsDisabled} placeholder="Type a message" />
+          <Button type="submit" variant="outline" size="icon" disabled={!chatInput.trim().length} className="size-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
             <PaperPlaneIcon className="text-white translate-x-[1px]" />
           </Button>
         </div>
@@ -122,5 +143,3 @@ export const Chat = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
 Chat.displayName = 'Chat';
 
 export const MotionChat = motion(Chat);
-
-// const ForwardedChat = React.forwardRef<HTMLDivElement, {}>(Chat);
