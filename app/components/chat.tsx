@@ -1,13 +1,14 @@
 import { cn } from "@/lib/utils";
 import { theme_styles } from "../style-constants";
 import { Button } from "@/components/ui/button";
-import { PaperPlaneIcon } from "@radix-ui/react-icons";
+import { PaperPlaneIcon, StopIcon } from "@radix-ui/react-icons";
 import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
 import { Message, nanoid } from "ai";
 import useFormStore from "../store/form";
+import { LoadingIcon } from "./utils/loading-icon";
 
 type ChatMessageProps = {
   side: 'left' | 'right';
@@ -64,7 +65,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
   const { formState, highlighted, setHighlighted, setFormFieldTypewriting, setFormField } = useFormStore();
   const [inputIsDisabled, setInputIsDisabled] = useState(false);
 
-  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, append, isLoading, stop } = useChat({
     api: '/api/chatbot',
     initialMessages: [
       {
@@ -219,9 +220,16 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
       <form onSubmit={handleSubmit} className="absolute bottom-5 left-1/2 -translate-x-1/2 w-full">
         <div className="flex gap-3 items-center px-4">
           <Input ref={inputRef} value={input} onChange={handleInputChange} disabled={inputIsDisabled} placeholder="Type a message" />
-          <Button type="submit" variant="outline" size="icon" disabled={!input.trim().length} className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
-            <PaperPlaneIcon className="text-white translate-x-[1px]" />
+          {!isLoading ? (
+            <Button type="submit" variant="outline" size="icon" disabled={!input.trim().length || isLoading} className="size-10 min-w-10 min-h-10 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 transition-all duration-500">
+              <PaperPlaneIcon className="text-white translate-x-[1px]" />
+            </Button>
+          ) : (
+            <Button type="button" onClick={stop} variant="outline" size="icon" className="size-10 min-w-10 min-h-10 group bg-blue-500 hover:bg-red-800 active:bg-blue-800 transition-all duration-500">
+              <LoadingIcon className="text-white group-hover:hidden" />
+              <StopIcon className="text-white hidden group-hover:block" />
           </Button>
+          )}
         </div>
       </form>
     </div>

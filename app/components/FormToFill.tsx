@@ -125,8 +125,10 @@ export function FormToFill() {
             onChange={handleInputChange}
             value={formState.nationality}
             name="nationality"
-            type='text' className='' aria-label='Nationality'
-            />
+            type='text' className=''
+            aria-label='Nationality'
+            highlight={highlighted === 'nationality'}
+          />
         </div>
       </div>
       <hr className="my-5 border-2 border-blue-950 dark:border-blue-800 border-opacity-30 dark:border-opacity-40"/>
