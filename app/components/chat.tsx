@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
 import { Message } from "ai";
 import useFormStore from "../store/form";
+import { v4 as uuid } from 'uuid';
 
 type ChatMessageProps = {
   side: 'left' | 'right';
@@ -68,20 +69,20 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
     api: '/api/chatbot',
     initialMessages: [
       {
-        id: crypto.randomUUID(),
+        id: uuid(),
         createdAt: new Date(),
         role: 'system',
         content: 'You are an assistant in charge to help the user fill a form.\nAt first you must call the function `get_form_state` to get the current form state.\nThen you must ask the user for the information needed to fill the form until is complete.\nIf the user provides wrong or invalid information, inform the user and try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NO MARKDOWN.'
       },
       {
-        id: crypto.randomUUID(),
+        id: uuid(),
         createdAt: new Date(),
         role: 'function',
         name: 'get_form_state',
         content: 'The form state is now:\n' + JSON.stringify(formState, null, 2),
       },
       {
-        id: crypto.randomUUID(),
+        id: uuid(),
         createdAt: new Date(),
         role: 'assistant',
         content: 'Hello! I am here to help you fill the form. Shall we start?'
@@ -96,7 +97,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
           messages: [
             ...chatMessages,
             {
-              id: crypto.randomUUID(),
+              id: uuid(),
               name: 'get_form_state',
               role: 'function',
               content: `The form state is now:\n${JSON.stringify(formState, null, 2)}`,
@@ -111,7 +112,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
             messages: [
               ...chatMessages,
               {
-                id: crypto.randomUUID(),
+                id: uuid(),
                 name: 'highlight_field',
                 role: 'function',
                 content: `Error: No field provided.`,
@@ -124,7 +125,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
           messages: [
             ...chatMessages,
             {
-              id: crypto.randomUUID(),
+              id: uuid(),
               name: 'highlight_field',
               role: 'function',
               content: `Highlighted field: "${parsedArgs.field}"`,
@@ -139,7 +140,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
             messages: [
               ...chatMessages,
               {
-                id: crypto.randomUUID(),
+                id: uuid(),
                 name: 'insert_into_field',
                 role: 'function',
                 content: `Error: No field or value provided.`,
@@ -153,7 +154,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
           messages: [
             ...chatMessages,
             {
-              id: crypto.randomUUID(),
+              id: uuid(),
               name: 'insert_into_field',
               role: 'function',
               content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify(newState.formState, null, 2)}`,
