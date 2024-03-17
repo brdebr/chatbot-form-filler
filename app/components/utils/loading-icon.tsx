@@ -1,9 +1,8 @@
-import { cn } from '@/lib/utils';
 import { UpdateIcon } from '@radix-ui/react-icons';
 import React from 'react';
 
-export function LoadingIcon({className}: {className?: string}) {
+export function LoadingIcon() {
   return (
-    <UpdateIcon className={cn("text-white animate-spin", className)} />
+    <UpdateIcon className="text-white animate-spin" />
   );
 }
