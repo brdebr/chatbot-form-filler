@@ -81,7 +81,7 @@ const useFormStore = create<FormStore>((set, get) => ({
         },
       },
     })),
-  setFormFieldTypewriting: (field, value, speed = 100) => {
+  setFormFieldTypewriting: (field, value, speed = 85) => {
     if (field.includes('.')) {
       const [field1, field2] = field.split('.');
       set((state) => ({
@@ -103,8 +103,12 @@ const useFormStore = create<FormStore>((set, get) => ({
       let i = 0;
       const typingEffect = () => {
         if (i < value.length) {
+          if (i === 0) {
+            set(() => ({
+              highlighted: field,
+            }));
+          }
           set((state) => ({
-            highlighted: field,
             formState: {
               ...state.formState,
               [field]: state.formState[field] + value.charAt(i),

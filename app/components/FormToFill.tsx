@@ -134,7 +134,7 @@ export function FormToFill() {
         <div className="text-sm">
           Form state:
         </div>
-        <div className={cn("whitespace-pre font-mono p-2 text-opacity-70", theme_styles.default_input_bg, theme_styles.default_text_color)}>{JSON.stringify(formState, null, 2)}</div>
+        <div className={cn("whitespace-pre font-mono p-2 text-opacity-70", theme_styles.default_input_bg, theme_styles.default_text_color)}>{JSON.stringify({formState, highlighted}, null, 2)}</div>
       </div>
     </Card>
   )
