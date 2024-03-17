@@ -22,12 +22,9 @@ const inputVariants = cva(`
   px-3 py-2
   rounded-md
 
-  border
-  border-slate-200
-  dark:border-slate-800
-  outline-none
+  ${theme_styles.default_input_border}
 
-  bg-slate-50 dark:bg-slate-800
+  ${theme_styles.default_input_bg}
   ${theme_styles.default_text_color}
   transition-all
   duration-500

@@ -16,6 +16,15 @@ const theme_styles = /*ui*/ {
   default_text_size: `
     text-sm lg:text-base
   ` as const,
+  default_input_border: `
+    border
+    border-slate-200
+    dark:border-slate-800
+    outline-none
+  ` as const,
+  default_input_bg: `
+    bg-slate-50 dark:bg-slate-800
+  ` as const,
 }
 
 export { theme_styles }
