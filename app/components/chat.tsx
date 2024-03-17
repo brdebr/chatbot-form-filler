@@ -6,9 +6,8 @@ import React, { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useChat } from "ai/react";
-import { Message } from "ai";
+import { Message, nanoid } from "ai";
 import useFormStore from "../store/form";
-import { v4 as uuid } from 'uuid';
 
 type ChatMessageProps = {
   side: 'left' | 'right';
@@ -36,7 +35,7 @@ export function ChatMessage({ message, side }: ChatMessageProps) {
           ${message.role === 'assistant' && message.content ? 'bg-blue-400 bg-opacity-40 dark:bg-blue-900 dark:bg-opacity-50' : ''}
           ${message.role === 'assistant' && !message.content ? 'bg-violet-400 bg-opacity-40 dark:bg-violet-900 dark:bg-opacity-50' : ''}
           ${message.role === 'system' ? 'bg-gray-400 bg-opacity-50 dark:bg-gray-800 dark:bg-opacity-70 !text-sm whitespace-break-spaces' : ''}
-          ${message.role === 'function' ? 'bg-yellow-400 bg-opacity-50 dark:bg-yellow-800 dark:bg-opacity-70 whitespace-pre !text-sm' : ''}
+          ${message.role === 'function' || message.role === 'tool' ? 'bg-yellow-400 bg-opacity-50 dark:bg-yellow-800 dark:bg-opacity-70 whitespace-pre !text-sm' : ''}
           transition-colors
           w-3/4
           ${theme_styles.default_text_color}
@@ -70,13 +69,13 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
     api: '/api/chatbot',
     initialMessages: [
       {
-        id: uuid(),
+        id: nanoid(),
         createdAt: new Date(Date.now() - 3000),
         role: 'system',
         content: 'You are an assistant in charge of helping the user fill a form.\nYou must ask the user for all the information that is missing to fill the form, until is complete.\nYou must validate that the user provides correct information. If the information is not valid you should inform the user and ask to try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NEVER MARKDOWN.'
       },
       {
-        id: uuid(),
+        id: nanoid(),
         createdAt: new Date(Date.now() - 2000),
         role: 'function',
         name: 'get_form_state',
@@ -86,89 +85,138 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
         }, null, 2),
       },
       {
-        id: uuid(),
+        id: nanoid(),
         createdAt: new Date(Date.now() - 1000),
         role: 'assistant',
         content: 'Hello! I am here to help you fill the form. Shall we start?'
       }
     ],
-    experimental_onFunctionCall: async (
-      chatMessages,
-      functionCall,
-    ) => {
-      if (functionCall.name === 'get_form_state') {
-        return {
-          messages: [
-            ...chatMessages,
-            {
-              id: uuid(),
-              name: 'get_form_state',
-              role: 'function',
-              content: JSON.stringify({
-                highlighted_field: highlighted,
-                current_form_state: formState
-              }, null, 2),
-            },
-          ],
+    experimental_onToolCall: async (chatMessages, toolCalls) => {
+      toolCalls.forEach((toolCall) => {
+        if (toolCall.function.name === 'get_form_state') {
+          // return {
+          //   messages: [
+          //     ...chatMessages,
+          //     {
+          //       id: nanoid(),
+          //       tool_call_id: toolCall.id,
+          //       role: 'tool',
+          //       name: toolCall.function.name,
+          //       content: JSON.stringify({
+          //         highlighted_field: highlighted,
+          //         current_form_state: formState
+          //       }, null, 2),
+          //     },
+          //   ],
+          // }
+          append({
+            id: nanoid(),
+            tool_call_id: toolCall.id,
+            role: 'tool',
+            name: toolCall.function.name,
+            content: JSON.stringify({
+              highlighted_field: highlighted,
+              current_form_state: formState
+            }, null, 2),
+          });
         }
-      }
-      if (functionCall.name === 'highlight_field') {
-        const parsedArgs = JSON.parse(functionCall.arguments || '{}');
-        if (!parsedArgs.field) {
-          return {
-            messages: [
-              ...chatMessages,
-              {
-                id: uuid(),
-                name: 'highlight_field',
-                role: 'function',
-                content: `Error: No field provided.`,
-              },
-            ],
+        if (toolCall.function.name === 'highlight_field') {
+          const parsedArgs = JSON.parse(toolCall.function.arguments || '{}');
+          if (!parsedArgs.field) {
+            // return {
+            //   messages: [
+            //     ...chatMessages,
+            //     {
+            //       id: nanoid(),
+            //       tool_call_id: toolCall.id,
+            //       role: 'tool',
+            //       name: toolCall.function.name,
+            //       content: `Error: No field provided.`,
+            //     },
+            //   ],
+            // }
+            append({
+              id: nanoid(),
+              tool_call_id: toolCall.id,
+              role: 'tool',
+              name: toolCall.function.name,
+              content: `Error: No field provided.`,
+            });
           }
+          setHighlighted(parsedArgs.field);
+          // return {
+          //   messages: [
+          //     ...chatMessages,
+          //     {
+          //       id: nanoid(),
+          //       tool_call_id: toolCall.id,
+          //       role: 'tool',
+          //       name: toolCall.function.name,
+          //       content: `Highlighted field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field}, null, 2)}`,
+          //     },
+          //   ],
+          // }
+          append({
+            id: nanoid(),
+            tool_call_id: toolCall.id,
+            role: 'tool',
+            name: toolCall.function.name,
+            content: JSON.stringify({
+              highlighted_field: parsedArgs.field,
+              current_form_state: formState
+            }, null, 2),
+          });
         }
-        setHighlighted(parsedArgs.field);
-        return {
-          messages: [
-            ...chatMessages,
-            {
-              id: uuid(),
-              name: 'highlight_field',
-              role: 'function',
-              content: `Highlighted field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field}, null, 2)}`,
-            },
-          ],
-        }
-      }
-      if (functionCall.name === 'insert_into_field') {
-        const parsedArgs = JSON.parse(functionCall.arguments || '{}');
-        if (!parsedArgs.field || !parsedArgs.value) {
-          return {
-            messages: [
-              ...chatMessages,
-              {
-                id: uuid(),
-                name: 'insert_into_field',
-                role: 'function',
-                content: `Error: No field or value provided.`,
-              },
-            ],
+        if (toolCall.function.name === 'insert_into_field') {
+          const parsedArgs = JSON.parse(toolCall.function.arguments || '{}');
+          if (!parsedArgs.field || !parsedArgs.value) {
+            // return {
+            //   messages: [
+            //     ...chatMessages,
+            //     {
+            //       id: nanoid(),
+            //       tool_call_id: toolCall.id,
+            //       role: 'tool',
+            //       name: toolCall.function.name,
+            //       content: `Error: No field or value provided.`,
+            //     },
+            //   ],
+            // }
+            append({
+              id: nanoid(),
+              tool_call_id: toolCall.id,
+              role: 'tool',
+              name: toolCall.function.name,
+              content: `Error: No field or value provided.`,
+            });
           }
+          setFormField(parsedArgs.field, '');
+          const newState = setFormFieldTypewriting(parsedArgs.field, parsedArgs.value);
+          // return {
+          //   messages: [
+          //     ...chatMessages,
+          //     {
+          //       id: nanoid(),
+          //       tool_call_id: toolCall.id,
+          //       role: 'tool',
+          //       name: toolCall.function.name,
+          //       content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field, current_form_state: newState.formState}, null, 2)}`,
+          //     },
+          //   ],
+          // }
+          append({
+            id: nanoid(),
+            tool_call_id: toolCall.id,
+            role: 'tool',
+            name: toolCall.function.name,
+            // content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field, current_form_state: newState.formState}, null, 2)}`,
+            content: JSON.stringify({
+              highlighted_field: parsedArgs.field,
+              current_form_state: newState.formState
+            }, null, 2),
+          });
         }
-        setFormField(parsedArgs.field, '');
-        const newState = setFormFieldTypewriting(parsedArgs.field, parsedArgs.value);
-        return {
-          messages: [
-            ...chatMessages,
-            {
-              id: uuid(),
-              name: 'insert_into_field',
-              role: 'function',
-              content: `Inserted value "${parsedArgs.value}" into field "${parsedArgs.field}".\nThe form state is now:\n${JSON.stringify({highlighted_field: parsedArgs.field, current_form_state: newState.formState}, null, 2)}`,
-            },
-          ],
-        }
-      }
+      });
     }
   });
 
