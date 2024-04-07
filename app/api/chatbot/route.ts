@@ -9,16 +9,13 @@ import { ChatCompletionCreateParams } from 'openai/resources/index.mjs';
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
+  baseURL: 'http://192.168.1.132:8080/v1',
 });
 
 // IMPORTANT! Set the runtime to edge
 export const runtime = 'edge';
 
 const functions: ChatCompletionCreateParams.Function[] = [
-  {
-    name: 'get_form_state',
-    description: 'Get the current form state.',
-  },
   {
     name: 'highlight_field',
     description: 'Highlights a field in the form so the user can know what field the assistant is talking about.',
@@ -55,9 +52,9 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4-turbo-preview',
+    model: 'hermes-2-pro-mistral',
     stream: true,
-    temperature: 0.4,
+    temperature: 0.2,
     messages,
     functions,
   });

@@ -72,7 +72,7 @@ export const Chat = React.forwardRef<HTMLDivElement, {debug: boolean}>(({ debug 
         id: nanoid(),
         createdAt: new Date(),
         role: 'system',
-        content: 'You are an assistant in charge to help the user fill a form.\nAt first you must call the function `get_form_state` to get the current form state.\nThen you must ask the user for the information needed to fill the form until is complete.\nIf the user provides wrong or invalid information, inform the user and try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NO MARKDOWN.'
+        content: 'You are an assistant in charge to help the user fill a form.\nYou have functions at your disposal to help him.\nYou must ask the user for the information needed to fill the form until is complete.\nIf the user provides wrong or invalid information, inform the user and try again.\nYOU ALWAYS ANSWER IN TEXT FORMAT, NO MARKDOWN.'
       },
       {
         id: nanoid(),
